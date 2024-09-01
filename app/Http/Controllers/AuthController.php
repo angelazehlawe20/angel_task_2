@@ -53,7 +53,7 @@ class AuthController extends Controller
 
 
 
-    public function verifyemail(Request $request)
+    public function verifyemail(VerifyEmailRequest $request)
     {
         $request->validate([
             'email'=>'required|email',
@@ -77,12 +77,10 @@ class AuthController extends Controller
 
 
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validation=$request->validate([
-            'identifier'=>'required|string',
-            'password'=>'required|string'
-        ]);
+        $validation=$request->validated();
+
         $user=User::where('email',$validation['identifier'])
                 ->orWhere('phone_number',$validation['identifier'])
                 ->first();
@@ -106,7 +104,7 @@ class AuthController extends Controller
     }
 
 
-    public function verifyTwoFactor(Request $request)
+    public function verifyTwoFactor(VerifyTwoFactorRequest $request)
     {
 
     $request->validate([
@@ -146,7 +144,7 @@ class AuthController extends Controller
 
 
 
-    public function refreshToken(Request $request)
+    public function refreshToken(RefreshTokenRequest $request)
     {
     $request->validate([
         'refresh_token' => 'required|string',
