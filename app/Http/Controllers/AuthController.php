@@ -141,9 +141,7 @@ class AuthController extends Controller
 
     public function refreshToken(RefreshTokenRequest $request)
     {
-    $request->validate([
-        'refresh_token' => 'required|string',
-    ]);
+    $request->validated();
 
     $user = User::where('refresh_token', $request->refresh_token)
                  ->where('refresh_token_expires_at', '>', now())
