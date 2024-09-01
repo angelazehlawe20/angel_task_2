@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('profile_photo');
             $table->string('certificate');
             $table->string('password');
-            $table->string('refresh_token')->nullable();
-            $table->timestamp('refresh_token_expires_at')->nullable();
             $table->string('verification_code')->nullable();
             $table->timestamp('verification_code_expires_at')->nullable();
             $table->boolean('email_verified')->default(false);

@@ -12,15 +12,17 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Requests\VerifyTwoFactorRequest;
-use App\Http\Requests\RefreshTokenRequest;
 use Illuminate\Http\Request;
 use PragmaRX\Google2FA\Google2FA;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\ApiTrait;
 
 class AuthController extends Controller
 {
+    use ApiTrait;
+
     public function register(RegisterRequest $request)
     {
         $validation=$request->validated();
@@ -43,19 +45,11 @@ class AuthController extends Controller
             ]);
             Mail::to($user->email)->send(new VerificationMail($user));
 
-            $token= $user->createToken('myapptoken')->plainTextToken;
-
             RegisterEvent::dispatch($user);
 
-            return response()->json([
-                'message'=>'user registered.Please check your email for verification.',
-                'user'=>$user,
-                'photo_url'=>$photo_url,
-                'token'=>$token],201);
+            return $this->SuccessResponse($user,'user registered.Please check your email for verification.',201);
 
     }
-
-
 
     public function verifyemail(VerifyEmailRequest $request)
     {
@@ -71,10 +65,9 @@ class AuthController extends Controller
                 $user->verification_code=null;
                 $user->verification_code_expires_at=null;
                 $user->save();
-                return response()->json(['message'=>'Email verified successfully'],200);
-
+                return $this->SuccessResponse($user,'Email verified successfully',200);
             }
-            return response()->json(['message'=>'Invalid or expired verification code'],400);
+            return $this->ErrorResponse('Invalid or expired verification code',400);
     }
 
 
@@ -88,7 +81,7 @@ class AuthController extends Controller
                 ->first();
 
         if(!$user||!Hash::check($validation['password'],$user->password)){
-            return response()->json(['message'=>'Invalid credentials. Please check your email or password and try again.'],401);
+            return $this->ErrorResponse('Invalid credentials. Please check your email or password and try again.',401);
         }
         $google2fa = new Google2FA();
         $code = $google2fa->generateSecretKey();
@@ -98,10 +91,7 @@ class AuthController extends Controller
         $user->save();
 
         Mail::to($user->email)->send(new TwoFactorMail($code));
-        return response()->json([
-            'message' => 'A 2FA code has been sent to your email. Please verify.'],
-            200
-        );
+        return $this->SuccessResponse($user,'A 2FA code has been sent to your email. Please verify.',200);
 
     }
 
@@ -115,7 +105,7 @@ class AuthController extends Controller
                 ->first();
 
     if (!$user || $user->two_factor_code !== $request->code || $user->two_factor_expires_at->lt(now())) {
-        return response()->json(['message' => 'Invalid or expired 2FA code'], 401);
+        return $this->ErrorResponse('Invalid or expired 2FA code',401);
     }
 
     $user->update([
@@ -125,65 +115,36 @@ class AuthController extends Controller
 
     $token = $user->createToken('myapptoken')->plainTextToken;
     $refreshToken = Str::random(64);
-    $user->update([
-        'refresh_token' => $refreshToken,
-        'refresh_token_expires_at' => now()->addMinutes(20),
-    ]);
 
     LoginEvent::dispatch($user);
 
-    return response()->json([
+    return $this->SuccessResponse($token,'',200);
+    /*response()->json([
         'email' => $user->email,
         'token' => $token,
         'refresh_token' => $refreshToken,
         'expires_in' => now()->addMinutes(10),
-    ], 200);
+    ], 200);*/
 
     }
 
 
 
-    public function refreshToken(RefreshTokenRequest $request)
+    public function refreshToken(Request $request)
     {
-    $request->validated();
-
-    $user = User::where('refresh_token', $request->refresh_token)
-                 ->where('refresh_token_expires_at', '>', now())
-                 ->first();
-
-    if (!$user)
-    {
-        return response()->json(['message' => 'Invalid or expired refresh token'], 401);
-    }
-
     $request->user()->currentAccessToken()->delete();
 
     $newAccessToken = $user->createToken('auth_token')->plainTextToken;
 
-    return response()->json([
-        'access_token' => $newAccessToken,
-        'expires_in' => '600 sec'
-    ], 200);
+    return $this->successResponse($newAccessToken,'expires_in 10 minutes',200);
     }
 
 
     public function logout(Request $request)
     {
         $user=$request->user();
-        if($user){
-            $user->update([
-                'refresh_token'=>null,
-                'refresh_token_expires_at'=>null
-            ]);
             $user->tokens()->delete();
-            return response()->json(['message' => 'Logged out successfully.'], 200);
-        }
-
+            return $this->successResponse(null,'logged out successfully.',200);
     }
 
-
-
-
-
-
-}
+    }
