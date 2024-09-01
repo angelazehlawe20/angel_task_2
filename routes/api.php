@@ -16,17 +16,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::post('/register',[AuthController::class,'register']);
-Route::post('/verifyEmail',[AuthController::class,'verifyEmail']);
-Route::post('/verifyTwoFactor', [AuthController::class, 'verifyTwoFactor']);
-Route::post('/login',[AuthController::class,'login']);
+Route::prefix('v1/auth')->group(function () {
+    Route::post('/register',[AuthController::class,'register']);
+    Route::post('/verifyEmail',[AuthController::class,'verifyEmail']);
+    Route::post('/verifyTwoFactor', [AuthController::class, 'verifyTwoFactor']);
+    Route::post('/login',[AuthController::class,'login']);
 
 
 
-Route::group(['middleware'=>['auth:sanctum']],function(){
-    Route::get('/sendEmail',[EmailController::class,'sendEmail']);
-    Route::get('/logout',[AuthController::class,'logout']);
-    Route::post('/refreshToken',[AuthController::class,'refreshToken']);
+    Route::group(['middleware'=>['auth:sanctum']],function(){
+        Route::get('/sendEmail',[EmailController::class,'sendEmail']);
+        Route::get('/logout',[AuthController::class,'logout']);
+        Route::post('/refreshToken',[AuthController::class,'refreshToken']);
 
+
+    });
 
 });
+
