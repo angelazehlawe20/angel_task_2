@@ -55,10 +55,8 @@ class AuthController extends Controller
 
     public function verifyemail(VerifyEmailRequest $request)
     {
-        $request->validate([
-            'email'=>'required|email',
-            'code'=>'required|string'
-        ]);
+        $request->validate();
+        
         $user=User::where('email',$request->email)
                    ->where('verification_code',$request->code)
                    ->where('verification_code_expires_at','>',now())
