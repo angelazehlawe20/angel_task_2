@@ -8,6 +8,7 @@ use App\Mail\TwoFactorMail;
 use App\Mail\VerificationMail;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Http\Request;
 use PragmaRX\Google2FA\Google2FA;
 use Illuminate\Support\Facades\Hash;
@@ -16,17 +17,9 @@ use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validation=$request->validate([
-
-        'email' => 'required|email|unique:users',
-        'phone_number' => 'required|string|max:15',
-        'username' => 'required|string|max:255',
-        'profile_photo' => 'required|image|max:2048',
-        'certificate' => 'required|file|mimes:pdf,doc,docx|max:5120',
-        'password' => 'required|string|confirmed|min:8',
-        ]);
+        $validation=$request->validated();
 
         $profilePhotoPath=$request->file('profile_photo')->store('profile_photo','public');
         $certificatePath=$request->file('certificate')->store('certificate','public');
