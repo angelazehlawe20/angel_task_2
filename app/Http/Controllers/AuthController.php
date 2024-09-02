@@ -18,20 +18,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Traits\ApiTrait;
+use App\Traits\FileUploadTrait;
 
 class AuthController extends Controller
 {
     use ApiTrait;
+    use FileUploadTrait;
 
     public function register(RegisterRequest $request)
     {
         $validation=$request->validated();
 
-        $profilePhotoPath=$request->file('profile_photo')->store('profile_photo','public');
-        $certificatePath=$request->file('certificate')->store('certificate','public');
+        $profilePhotoPath=$this->uploadFile($request,'profile_photo','profile_photos','public');
+        $certificatePath=$this->uploadFile($request,'certificate','certificates','public');
 
-        //الوصول الى الملف المرفوع
-        $photo_url=Storage::url($profilePhotoPath);
+        //الوصول الى الصورةالمرفوعة
+        $photo_url=$this->fileUrl($profilePhotoPath);
 
             $user= User::create([
                 'email'=>$validation['email'],

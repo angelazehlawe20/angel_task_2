@@ -3,7 +3,7 @@ namespace App\Traits;
 
 trait ApiTrait
 {
-    protected function SuccessResponse($data=null,$message=null,$code)
+    public function SuccessResponse($data=null,$message=null,$code)
     {
         return response()->json([
             'data'=>$data,
@@ -11,7 +11,7 @@ trait ApiTrait
         ], $code);
     }
 
-    protected function ErrorResponse($message,$code)
+    public function ErrorResponse($message,$code)
     {
         return response()->json([
             'message'=>$message,

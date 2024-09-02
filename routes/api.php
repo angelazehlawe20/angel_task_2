@@ -15,22 +15,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-Route::prefix('v1/auth')->group(function () {
-    Route::post('/register',[AuthController::class,'register']);
-    Route::post('/verifyEmail',[AuthController::class,'verifyEmail']);
-    Route::post('/verifyTwoFactor', [AuthController::class, 'verifyTwoFactor']);
-    Route::post('/login',[AuthController::class,'login']);
-
-
-
-    Route::group(['middleware'=>['auth:sanctum']],function(){
-        Route::get('/sendEmail',[EmailController::class,'sendEmail']);
-        Route::get('/logout',[AuthController::class,'logout']);
-        Route::post('/refreshToken',[AuthController::class,'refreshToken']);
-
-
+Route::prefix('v1/auth')->group(function(){
+    Route::controller(AuthController::class)->group(function () {
+        Route::post('/register','register');
+        Route::post('/verifyEmail','verifyEmail');
+        Route::post('/verifyTwoFactor','verifyTwoFactor');
+        Route::post('/login','login');
+    
+        Route::group(['middleware'=>['auth:sanctum']],function(){
+            Route::controller(AuthController::class)->group(function(){
+                Route::get('/logout','logout');
+                Route::post('/refreshToken','refreshToken');
+            });
+            Route::controller(EmailController::class)->group(function(){
+                Route::get('/sendEmail','sendEmail');
+            });
+        });            
     });
-
 });
+
 

@@ -33,10 +33,8 @@ class User extends Authenticatable
         'verification_code',
         'verification_code_expires_at',
         'email_verified',
-        'refresh_token',
-        'refresh_token_expires_at',
-        'two_factor_code',
         'two_factor_expires_at',
+        'two_factor_code',
     ];
 
     /**
@@ -48,7 +46,11 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'verification_code',
-        'verification_code_expires_at'
+        'verification_code_expires_at',
+        'two_factor_code',
+        'two_factor_expires_at',
+        'created_at',
+        'updated_at'
     ];
 
     /**
