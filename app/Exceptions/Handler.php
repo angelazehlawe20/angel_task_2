@@ -10,7 +10,7 @@ class Handler extends ExceptionHandler
 {
     use ApiTrait;
 
-    public function render($request, Throwable $exception)
+    /*public function render($request, Throwable $exception)
     {
         if($exception instanceof UnauthorizedHttpException)
         {
@@ -37,7 +37,7 @@ class Handler extends ExceptionHandler
         }
 
         return $this->errorResponse('An unexpected error occurred. Please try again later.', 500);
-    }
+    }*/
 
 
 

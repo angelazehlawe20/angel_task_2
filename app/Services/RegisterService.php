@@ -16,7 +16,7 @@ class RegisterService
     use FileUploadTrait;
     use ApiTrait;
 
-    public function RegisterUser(RegisterRequest $request,$data)
+    public function registerUser(RegisterRequest $request)
     {
         $validation=$request->validated();
 

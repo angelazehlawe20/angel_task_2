@@ -1,13 +1,15 @@
 <?php
 namespace App\Traits;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 trait FileUploadTrait
 {
     public function uploadFile(Request $request,$fieldName,$folderName,$diskName)
     {
         $originalName=$request->file($fieldName)->getClientOriginalName();
-        $path=$request->file($fieldName)->storeAs($folderName,$file_name,$diskName);
+        $path=$request->file($fieldName)->storeAs($folderName,$originalName,$diskName);
         return $path;
     }
 
