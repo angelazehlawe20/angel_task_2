@@ -2,8 +2,20 @@
 
 namespace App\Services;
 
+use PragmaRX\Google2FA\Google2FA;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TwoFactorMail;
+use App\Traits\ApiTrait;
+use App\Http\Requests\LoginRequest;
+use App\Models\User;
+
+
+
 class LoginService
 {
+    use ApiTrait;
+
     public function loginUser(LoginRequest $request)
     {
         $validation=$request->validated();
