@@ -4,11 +4,11 @@ use App\Traits\ApiTrait;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Models\User;
 
-class VerifyEmailService
+class ConfirmEmail_VFCodeService
 {
     use ApiTrait;
-    
-    public function verifyEmailUser(VerifyEmailRequest $request)
+
+    public function confirmEmail_VFCodeUser(VerifyEmailRequest $request)
     {
         $request->validated();
 
@@ -22,7 +22,8 @@ class VerifyEmailService
                 $user->verification_code=null;
                 $user->verification_code_expires_at=null;
                 $user->save();
-                return $this->SuccessResponse($user,'Email verified successfully',200);
+                $token=$user->createToken('myapptoken')->plainTextToken;
+                return $this->SuccessResponse($token,'Email verified successfully',200);
             }
             return $this->ErrorResponse('Invalid or expired verification code',400);
     }

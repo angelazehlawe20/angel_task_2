@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Services\SignupService;
 use App\Services\LoginService;
-use App\Services\VerifyEmailService;
+use App\Services\ConfirmEmail_VFCodeService;
 use App\Services\VerifyTwoFactorService;
 use App\Services\RefreshTokenService;
 use App\Services\Re_sendVFCodeService;
@@ -22,7 +22,7 @@ class AuthController extends Controller
 {
     protected $signupService;
     protected $loginService;
-    protected $verifyEmailService;
+    protected $confirmEmail_VFCodeService;
     protected $verifyTwoFactorService;
     protected $logoutService;
     protected $resendVerifiedCodeService;
@@ -30,7 +30,7 @@ class AuthController extends Controller
 
     public function __construct(
         SignupService $signupService,
-        VerifyEmailService $verifyEmailService,
+        ConfirmEmail_VFCodeService $confirmEmail_VFCodeService,
         LoginService $loginService,
         VerifyTwoFactorService $verifyTwoFactorService,
         RefreshTokenService $refreshTokenService,
@@ -39,7 +39,7 @@ class AuthController extends Controller
         )
     {
         $this->signupService=$signupService;
-        $this->verifyEmailService=$verifyEmailService;
+        $this->confirmEmail_VFCodeService=$confirmEmail_VFCodeService;
         $this->loginService=$loginService;
         $this->verifyTwoFactorService=$verifyTwoFactorService;
         $this->refreshTokenService=$refreshTokenService;
@@ -53,9 +53,9 @@ class AuthController extends Controller
         return $this->signupService->signupUser($request);
     }
 
-    public function verifyEmail(VerifyEmailRequest $request)
+    public function confirmEmail_VFCode(VerifyEmailRequest $request)
     {
-        return $this->verifyEmailService->verifyEmailUser($request);
+        return $this->confirmEmail_VFCodeService->confirmEmail_VFCodeUser($request);
     }
 
     public function resendVFCode(Request $request)
