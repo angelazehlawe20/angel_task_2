@@ -2,18 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\LoginEvent;
-use App\Mail\TwoFactorMail;
-use Illuminate\Support\Str;
-use App\Models\User;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Requests\VerifyTwoFactorRequest;
 use Illuminate\Http\Request;
-use PragmaRX\Google2FA\Google2FA;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use App\Traits\ApiTrait;
 use App\Traits\FileUploadTrait;
 use App\Services\RegisterService;
@@ -32,6 +25,7 @@ class AuthController extends Controller
     protected $loginService;
     protected $verifyEmailService;
     protected $verifyTwoFactorService;
+    protected $logoutService;
 
 
     public function __construct(
@@ -39,7 +33,8 @@ class AuthController extends Controller
         VerifyEmailService $verifyEmailService,
         LoginService $loginService,
         VerifyTwoFactorService $verifyTwoFactorService,
-        RefreshTokenService $refreshTokenService
+        RefreshTokenService $refreshTokenService,
+        LogoutService $logoutService
         )
     {
         $this->registerService=$registerService;
@@ -47,6 +42,7 @@ class AuthController extends Controller
         $this->loginService=$loginService;
         $this->verifyTwoFactorService=$verifyTwoFactorService;
         $this->refreshTokenService=$refreshTokenService;
+        $this->logoutService=$logoutService;
 
     }
 
@@ -81,9 +77,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $user=$request->user();
-            $user->tokens()->delete();
-            return $this->successResponse(null,'logged out successfully.',200);
+        return $this->logoutService->logoutUser($request);
     }
 
 }
