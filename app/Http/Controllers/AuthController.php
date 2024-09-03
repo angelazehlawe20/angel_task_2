@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Traits\ApiTrait;
 use App\Traits\FileUploadTrait;
 use App\Services\RegisterService;
+use App\Services\LoginService;
+use App\Services\VerifyEmailService;
+
 
 class AuthController extends Controller
 {
@@ -25,10 +28,17 @@ class AuthController extends Controller
 
     protected $registerService;
     protected $loginService;
-    public function __construct(RegisterService $registerService,LoginService $loginService)
+    protected $verifyEmailService;
+    public function __construct(
+        RegisterService $registerService,
+        VerifyEmailService $verifyEmailService,
+        LoginService $loginService,
+        )
     {
         $this->registerService=$registerService;
+        $this->verifyEmailService=$verifyEmailService;
         $this->loginService=$loginService;
+
     }
 
     public function register(RegisterRequest $request)
@@ -38,21 +48,7 @@ class AuthController extends Controller
 
     public function verifyemail(VerifyEmailRequest $request)
     {
-        $request->validated();
-
-        $user=User::where('email',$request->email)
-                   ->where('verification_code',$request->code)
-                   ->where('verification_code_expires_at','>',now())
-                   ->first();
-            if($user)
-            {
-                $user->email_verified=true;
-                $user->verification_code=null;
-                $user->verification_code_expires_at=null;
-                $user->save();
-                return $this->SuccessResponse($user,'Email verified successfully',200);
-            }
-            return $this->ErrorResponse('Invalid or expired verification code',400);
+        return $this->verifyEmailService->verifyEmailUser($request);
     }
 
 
