@@ -7,6 +7,7 @@ use App\Models\User;
 class VerifyEmailService
 {
     use ApiTrait;
+    
     public function verifyEmailUser(VerifyEmailRequest $request)
     {
         $request->validated();

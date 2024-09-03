@@ -11,12 +11,12 @@ use Illuminate\Support\Str;
 
 
 
-class RegisterService
+class SignupService
 {
     use FileUploadTrait;
     use ApiTrait;
 
-    public function registerUser(RegisterRequest $request)
+    public function signupUser(RegisterRequest $request)
     {
         $validation=$request->validated();
 
