@@ -1,5 +1,6 @@
 <?php
 namespace App\Services;
+
 use App\Traits\ApiTrait;
 use App\Http\Requests\VerifyTwoFactorRequest;
 use App\Models\User;

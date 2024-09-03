@@ -20,7 +20,7 @@ use App\Services\RegisterService;
 use App\Services\LoginService;
 use App\Services\VerifyEmailService;
 use App\Services\VerifyTwoFactorService;
-
+use App\Services\RefreshTokenService;
 
 
 class AuthController extends Controller
@@ -33,18 +33,20 @@ class AuthController extends Controller
     protected $verifyEmailService;
     protected $verifyTwoFactorService;
 
-    
+
     public function __construct(
         RegisterService $registerService,
         VerifyEmailService $verifyEmailService,
         LoginService $loginService,
-        VerifyTwoFactorService $verifyTwoFactorService
+        VerifyTwoFactorService $verifyTwoFactorService,
+        RefreshTokenService $refreshTokenService
         )
     {
         $this->registerService=$registerService;
         $this->verifyEmailService=$verifyEmailService;
         $this->loginService=$loginService;
         $this->verifyTwoFactorService=$verifyTwoFactorService;
+        $this->refreshTokenService=$refreshTokenService;
 
     }
 
@@ -73,11 +75,7 @@ class AuthController extends Controller
 
     public function refreshToken(Request $request)
     {
-    $request->user()->currentAccessToken()->delete();
-
-    $newAccessToken = $user->createToken('auth_token')->plainTextToken;
-
-    return $this->successResponse($newAccessToken,'expires_in 10 minutes',200);
+        return $this->refreshTokenService->refreshTokenUser($request);
     }
 
 
@@ -88,4 +86,4 @@ class AuthController extends Controller
             return $this->successResponse(null,'logged out successfully.',200);
     }
 
-    }
+}
