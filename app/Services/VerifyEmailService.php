@@ -1,7 +1,12 @@
 <?php
 namespace App\Services;
+use App\Traits\ApiTrait;
+use App\Http\Requests\VerifyEmailRequest;
+use App\Models\User;
+
 class VerifyEmailService
 {
+    use ApiTrait;
     public function verifyEmailUser(VerifyEmailRequest $request)
     {
         $request->validated();

@@ -19,6 +19,8 @@ use App\Traits\FileUploadTrait;
 use App\Services\RegisterService;
 use App\Services\LoginService;
 use App\Services\VerifyEmailService;
+use App\Services\VerifyTwoFactorService;
+
 
 
 class AuthController extends Controller
@@ -29,15 +31,20 @@ class AuthController extends Controller
     protected $registerService;
     protected $loginService;
     protected $verifyEmailService;
+    protected $verifyTwoFactorService;
+
+    
     public function __construct(
         RegisterService $registerService,
         VerifyEmailService $verifyEmailService,
         LoginService $loginService,
+        VerifyTwoFactorService $verifyTwoFactorService
         )
     {
         $this->registerService=$registerService;
         $this->verifyEmailService=$verifyEmailService;
         $this->loginService=$loginService;
+        $this->verifyTwoFactorService=$verifyTwoFactorService;
 
     }
 
@@ -51,8 +58,6 @@ class AuthController extends Controller
         return $this->verifyEmailService->verifyEmailUser($request);
     }
 
-
-
     public function login(LoginRequest $request)
     {
         return $this->loginService->loginUser($request);
@@ -61,34 +66,7 @@ class AuthController extends Controller
 
     public function verifyTwoFactor(VerifyTwoFactorRequest $request)
     {
-
-    $request->validated();
-
-    $user = User::where('email', $request->email)
-                ->first();
-
-    if (!$user || $user->two_factor_code !== $request->code || $user->two_factor_expires_at->lt(now())) {
-        return $this->ErrorResponse('Invalid or expired 2FA code',401);
-    }
-
-    $user->update([
-        'two_factor_code' => null,
-        'two_factor_expires_at' => null,
-    ]);
-
-    $token = $user->createToken('myapptoken')->plainTextToken;
-    $refreshToken = Str::random(64);
-
-    LoginEvent::dispatch($user);
-
-    return $this->SuccessResponse($token,'',200);
-    /*response()->json([
-        'email' => $user->email,
-        'token' => $token,
-        'refresh_token' => $refreshToken,
-        'expires_in' => now()->addMinutes(10),
-    ], 200);*/
-
+        return $this->verifyTwoFactorService->verifyTwoFactorUser($request);
     }
 
 
