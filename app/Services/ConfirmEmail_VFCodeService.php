@@ -12,20 +12,34 @@ class ConfirmEmail_VFCodeService
     {
         $request->validated();
 
-        $user=User::where('email',$request->email)
-                   ->where('verification_code',$request->code)
-                   ->where('verification_code_expires_at','>',now())
-                   ->first();
-            if($user)
-            {
+        $user = User::where('email', $request->email)
+                ->where(function ($query) use ($request) {
+                    $query->where('verification_code', $request->code)
+                          ->where('verification_code_expires_at', '>', now());
+                })
+                ->orWhere(function ($query) use ($request) {
+                    $query->where('email', $request->email)
+                          ->whereNull('verification_code')
+                          ->whereNull('verification_code_expires_at');
+                })
+                ->first();
+
+                if (!$user) 
+                {
+                    return $this->ErrorResponse('Invalid or expired verification code', 400);
+                }
+
+                if ($user->email_verified)
+                {
+                    return $this->ErrorResponse('Email is already verified.', 400);
+                }
+
                 $user->email_verified=true;
                 $user->verification_code=null;
                 $user->verification_code_expires_at=null;
                 $user->save();
                 $token=$user->createToken('myapptoken')->plainTextToken;
                 return $this->SuccessResponse($token,'Email verified successfully',200);
-            }
-            return $this->ErrorResponse('Invalid or expired verification code',400);
     }
 
 }
