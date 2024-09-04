@@ -15,7 +15,7 @@ use App\Services\VerifyTwoFactorService;
 use App\Services\RefreshTokenService;
 use App\Services\Re_sendVFCodeService;
 use App\Services\LogoutService;
-
+use App\Services\Resend2FAcodeService;
 
 
 class AuthController extends Controller
@@ -26,6 +26,7 @@ class AuthController extends Controller
     protected $verifyTwoFactorService;
     protected $logoutService;
     protected $resendVerifiedCodeService;
+    protected $resend2FAcodeService;
 
 
     public function __construct(
@@ -35,7 +36,8 @@ class AuthController extends Controller
         VerifyTwoFactorService $verifyTwoFactorService,
         RefreshTokenService $refreshTokenService,
         LogoutService $logoutService,
-        Re_sendVFCodeService $resendVFCodeService
+        Re_sendVFCodeService $resendVFCodeService,
+        Resend2FAcodeService $resend2FAcodeService
         )
     {
         $this->signupService=$signupService;
@@ -45,6 +47,7 @@ class AuthController extends Controller
         $this->refreshTokenService=$refreshTokenService;
         $this->logoutService=$logoutService;
         $this->resendVFCodeService=$resendVFCodeService;
+        $this->resend2FAcodeService=$resend2FAcodeService;
 
     }
 
@@ -66,6 +69,11 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         return $this->loginService->loginUser($request);
+    }
+
+    public function resend2FAcode(Request $request)
+    {
+        return $this->resend2FAcodeService->Resend2FAcodeUser($request);
     }
 
     public function verifyTwoFactor(VerifyTwoFactorRequest $request)

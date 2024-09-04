@@ -16,23 +16,24 @@ class VerifyTwoFactorService
     {
         $request->validated();
 
-    $user = User::where('email', $request->email)
+        $user = User::where('email', $request->email)
                 ->first();
 
-    if (!$user || $user->two_factor_code !== $request->code || $user->two_factor_expires_at->lt(now())) {
-        return $this->ErrorResponse('Invalid or expired 2FA code',401);
-    }
+        if (!$user || $user->two_factor_code !== $request->code || $user->two_factor_expires_at->lt(now())) 
+        {
+            return $this->ErrorResponse('Invalid or expired 2FA code',401);
+        }
 
-    $user->update([
+        $user->update([
         'two_factor_code' => null,
         'two_factor_expires_at' => null,
-    ]);
+        ]);
 
-    $token = $user->createToken('myapptoken')->plainTextToken;
+        $token = $user->createToken('myapptoken')->plainTextToken;
 
-    LoginEvent::dispatch($user);
+        LoginEvent::dispatch($user);
 
-    return $this->SuccessResponse($token,'expires_in 10 minutes',200);
+        return $this->SuccessResponse($token,'expires_in 10 minutes',200);
 
     }
 }

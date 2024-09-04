@@ -22,6 +22,8 @@ Route::prefix('v1/auth')->group(function(){
         Route::post('/resendVFCode','resendVFCode');
         Route::post('/verifyTwoFactor','verifyTwoFactor');
         Route::post('/login','login');
+        Route::post('/resend2FAcode','resend2FAcode');
+        
     
         Route::group(['middleware'=>['auth:sanctum']],function(){
             Route::controller(AuthController::class)->group(function(){
