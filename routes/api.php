@@ -15,26 +15,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('v1/auth')->group(function(){
+Route::prefix('v1/auth')->group(function() {
+
     Route::controller(AuthController::class)->group(function () {
-        Route::post('/signup','signup');
-        Route::post('/resendVFCode','resendVFCode');
-        Route::post('/confirmEmail_VFCode','confirmEmail_VFCode');
-        Route::post('/login','login');
-        
-    
-        Route::group(['middleware'=>['auth:sanctum']],function(){
-            Route::controller(AuthController::class)->group(function(){
-                Route::post('/resend2FAcode','resend2FAcode');
-                Route::post('/Confirm2FACode','Confirm2FACode');
-                Route::get('/logout','logout');
-                Route::post('/refreshToken','refreshToken');
-            });
-            Route::controller(EmailController::class)->group(function(){
-                Route::get('/sendEmail','sendEmail');
-            });
-        });            
+        Route::post('/signup', 'signup');
+        Route::post('/login', 'login');
+        Route::post('/confirmEmail_VFCode', 'confirmEmail_VFCode');
+
+        Route::middleware(['email.throttle'])->group(function () {
+            Route::post('/resendVFCode', 'resendVFCode');
+        });
+
+        Route::middleware(['auth:sanctum','refresh.token'])->group(function () {
+            Route::post('/resend2FAcode', 'resend2FAcode')->middleware('email.throttle');
+            Route::post('/Confirm2FACode', 'Confirm2FACode');
+            Route::post('/refreshToken', 'refreshToken');
+
+        });
+
+        Route::middleware(['auth:sanctum','refresh.token'])->group(function () {
+            Route::get('/logout', 'logout');
+        });
     });
+
+    Route::controller(EmailController::class)->middleware(['auth:sanctum', 'email.throttle'])->group(function () {
+        Route::get('/sendEmail', 'sendEmail');
+    });
+
 });
+
 
 

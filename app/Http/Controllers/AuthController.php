@@ -6,6 +6,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Requests\VerifyTwoFactorRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\SignupService;
 use App\Services\LoginService;
