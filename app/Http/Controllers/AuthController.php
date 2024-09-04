@@ -7,11 +7,10 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Requests\VerifyTwoFactorRequest;
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Services\SignupService;
 use App\Services\LoginService;
 use App\Services\ConfirmEmail_VFCodeService;
-use App\Services\VerifyTwoFactorService;
+use App\Services\Confirm2FACodeService;
 use App\Services\RefreshTokenService;
 use App\Services\Re_sendVFCodeService;
 use App\Services\LogoutService;
@@ -23,17 +22,18 @@ class AuthController extends Controller
     protected $signupService;
     protected $loginService;
     protected $confirmEmail_VFCodeService;
-    protected $verifyTwoFactorService;
+    protected $confirm2FACodeService;
     protected $logoutService;
-    protected $resendVerifiedCodeService;
     protected $resend2FAcodeService;
+    protected $refreshTokenService;
+    protected $resendVFCodeService;
 
 
     public function __construct(
         SignupService $signupService,
         ConfirmEmail_VFCodeService $confirmEmail_VFCodeService,
         LoginService $loginService,
-        VerifyTwoFactorService $verifyTwoFactorService,
+        Confirm2FACodeService $confirm2FACodeService,
         RefreshTokenService $refreshTokenService,
         LogoutService $logoutService,
         Re_sendVFCodeService $resendVFCodeService,
@@ -43,7 +43,7 @@ class AuthController extends Controller
         $this->signupService=$signupService;
         $this->confirmEmail_VFCodeService=$confirmEmail_VFCodeService;
         $this->loginService=$loginService;
-        $this->verifyTwoFactorService=$verifyTwoFactorService;
+        $this->confirm2FACodeService=$confirm2FACodeService;
         $this->refreshTokenService=$refreshTokenService;
         $this->logoutService=$logoutService;
         $this->resendVFCodeService=$resendVFCodeService;
@@ -76,9 +76,9 @@ class AuthController extends Controller
         return $this->resend2FAcodeService->Resend2FAcodeUser($request);
     }
 
-    public function verifyTwoFactor(VerifyTwoFactorRequest $request)
+    public function Confirm2FACode(VerifyTwoFactorRequest $request)
     {
-        return $this->verifyTwoFactorService->verifyTwoFactorUser($request);
+        return $this->confirm2FACodeService->Confirm2FACodeUser($request);
     }
 
     public function refreshToken(Request $request)

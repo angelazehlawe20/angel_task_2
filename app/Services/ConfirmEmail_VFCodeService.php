@@ -3,6 +3,8 @@ namespace App\Services;
 use App\Traits\ApiTrait;
 use App\Http\Requests\VerifyEmailRequest;
 use App\Models\User;
+use App\Events\LoginEvent;
+
 
 class ConfirmEmail_VFCodeService
 {
@@ -39,6 +41,7 @@ class ConfirmEmail_VFCodeService
                 $user->verification_code_expires_at=null;
                 $user->save();
                 $token=$user->createToken('myapptoken')->plainTextToken;
+                LoginEvent::dispatch($user);
                 return $this->SuccessResponse($token,'Email verified successfully',200);
     }
 

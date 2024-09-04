@@ -9,8 +9,7 @@ use App\Mail\TwoFactorMail;
 use App\Traits\ApiTrait;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
-
-
+use App\Events\LoginEvent;
 
 class LoginService
 {
@@ -27,6 +26,12 @@ class LoginService
         if(!$user||!Hash::check($validation['password'],$user->password)){
             return $this->ErrorResponse('Invalid credentials. Please check your email or password and try again.',401);
         }
+        $oldToken=$request->user();
+        $oldToken->currentAccessToken()->delete();
+        $newToken=$user->createToken('myapptoken')->plainTextToken;
+        
+        LoginEvent::dispatch($user);
+
         $google2fa = new Google2FA();
         $code = $google2fa->generateSecretKey();
 
@@ -35,6 +40,6 @@ class LoginService
         $user->save();
 
         Mail::to($user->email)->send(new TwoFactorMail($code));
-        return $this->SuccessResponse($user,'A 2FA code has been sent to your email. Please verify.',200);
+        return $this->SuccessResponse($newToken,'A 2FA code has been sent to your email. Please verify.',200);
     }
 }

@@ -1,18 +1,15 @@
-<?php
+<?php 
 namespace App\Services;
-
-use App\Traits\ApiTrait;
 use App\Http\Requests\VerifyTwoFactorRequest;
 use App\Models\User;
-use Illuminate\Support\Str;
+use App\Traits\ApiTrait;
 use App\Events\LoginEvent;
 
-
-class VerifyTwoFactorService
+class Confirm2FACodeService
 {
     use ApiTrait;
 
-    public function verifyTwoFactorUser(VerifyTwoFactorRequest $request)
+    public function Confirm2FACodeUser(VerifyTwoFactorRequest $request)
     {
         $request->validated();
 
@@ -28,12 +25,10 @@ class VerifyTwoFactorService
         'two_factor_code' => null,
         'two_factor_expires_at' => null,
         ]);
-
+        $oldToken=$request->user();
+        $oldToken->currentAccessToken()->delete();
         $token = $user->createToken('myapptoken')->plainTextToken;
-
         LoginEvent::dispatch($user);
-
         return $this->SuccessResponse($token,'expires_in 10 minutes',200);
-
     }
 }

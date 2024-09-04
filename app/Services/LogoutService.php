@@ -1,8 +1,13 @@
 <?php
 namespace App\Services;
 
+use App\Traits\ApiTrait;
+use Illuminate\Http\Request;
+
+
 class LogoutService
 {
+    use ApiTrait;
     public function logoutUser(Request $request)
     {
         $user=$request->user();

@@ -18,15 +18,15 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1/auth')->group(function(){
     Route::controller(AuthController::class)->group(function () {
         Route::post('/signup','signup');
-        Route::post('/confirmEmail_VFCode','confirmEmail_VFCode');
         Route::post('/resendVFCode','resendVFCode');
-        Route::post('/verifyTwoFactor','verifyTwoFactor');
+        Route::post('/confirmEmail_VFCode','confirmEmail_VFCode');
         Route::post('/login','login');
-        Route::post('/resend2FAcode','resend2FAcode');
         
     
         Route::group(['middleware'=>['auth:sanctum']],function(){
             Route::controller(AuthController::class)->group(function(){
+                Route::post('/resend2FAcode','resend2FAcode');
+                Route::post('/Confirm2FACode','Confirm2FACode');
                 Route::get('/logout','logout');
                 Route::post('/refreshToken','refreshToken');
             });
