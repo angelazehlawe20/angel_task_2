@@ -14,35 +14,41 @@ class ConfirmEmail_VFCodeService
     {
         $request->validated();
 
-        $user = User::where('email', $request->email)
-                ->where(function ($query) use ($request) {
-                    $query->where('verification_code', $request->code)
-                          ->where('verification_code_expires_at', '>', now());
-                })
-                ->orWhere(function ($query) use ($request) {
-                    $query->where('email', $request->email)
-                          ->whereNull('verification_code')
-                          ->whereNull('verification_code_expires_at');
-                })
-                ->first();
+        $user = $this->getUserForVerification($request->email, $request->code);
 
-                if (!$user) 
-                {
-                    return $this->ErrorResponse('Invalid or expired verification code', 400);
-                }
+        if (!$user) {
+            return $this->ErrorResponse('Invalid or expired verification code', 400);
+        }
 
-                if ($user->email_verified)
-                {
-                    return $this->ErrorResponse('Email is already verified.', 400);
-                }
+        if ($user->email_verified) {
+            return $this->ErrorResponse('Email is already verified.', 400);
+        }
 
-                $user->email_verified=true;
-                $user->verification_code=null;
-                $user->verification_code_expires_at=null;
-                $user->save();
-                $token=$user->createToken('myapptoken')->plainTextToken;
-                LoginEvent::dispatch($user);
-                return $this->SuccessResponse($token,'Email verified successfully',200);
+        $this->markEmailAsVerified($user);
+
+        $token = $user->createToken('myapptoken')->plainTextToken;
+        LoginEvent::dispatch($user);
+
+        return $this->SuccessResponse($token, 'Email verified successfully', 200);
+    }
+
+    private function getUserForVerification($email, $code)
+    {
+        return User::where('email', $email)
+            ->where(function ($query) use ($code) {
+                $query->where('verification_code', $code)
+                      ->where('verification_code_expires_at', '>', now());
+            })
+            ->first();
+    }
+
+    private function markEmailAsVerified($user)
+    {
+        $user->update([
+            'email_verified' => true,
+            'verification_code' => null,
+            'verification_code_expires_at' => null,
+        ]);
     }
 
 }

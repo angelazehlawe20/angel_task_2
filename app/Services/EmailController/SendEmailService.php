@@ -11,13 +11,24 @@ class SendEmailService
 
     public function sendEmailUser()
     {
+        $user = $this->getAuthenticatedUser();
 
-    $user = Auth::user();
-    if (!$user) {
-        return $this->ErrorResponse('User not authenticated.', 401);
+        if (!$user) {
+            return $this->ErrorResponse('User not authenticated.', 401);
+        }
+
+        $this->sendEmail($user);
+
+        return $this->SuccessResponse($user, 'Email sent successfully.', 200);
     }
-    Mail::to($user->email)->send(new EmailMail($user));
-    return $this->SuccessResponse($user,'Email sent successfully.',200);
-    
+
+    private function getAuthenticatedUser()
+    {
+        return Auth::user();
+    }
+
+    private function sendEmail($user)
+    {
+        Mail::to($user->email)->send(new EmailMail($user));
     }
 }

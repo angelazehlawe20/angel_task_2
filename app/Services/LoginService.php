@@ -17,27 +17,44 @@ class LoginService
 
     public function loginUser(LoginRequest $request)
     {
-        $validation=$request->validated();
+        $validatedData = $request->validated();
 
-        $user=User::where('email',$validation['identifier'])
-                ->orWhere('phone_number',$validation['identifier'])
-                ->first();
+        $user = $this->findUserByIdentifier($validatedData['identifier']);
 
-        if(!$user||!Hash::check($validation['password'],$user->password)){
-            return $this->ErrorResponse('Invalid credentials. Please check your email or password and try again.',401);
+        if (!$user || !$this->isValidPassword($validatedData['password'], $user->password)) {
+            return $this->ErrorResponse('Invalid credentials. Please check your email or password and try again.', 401);
         }
-        $newToken=$user->createToken('myapptoken')->plainTextToken;
 
+        $newToken = $user->createToken('myapptoken')->plainTextToken;
         LoginEvent::dispatch($user);
 
+        $this->handleTwoFactorAuthentication($user);
+
+        return $this->SuccessResponse($newToken, 'A 2FA code has been sent to your email. Please verify.', 200);
+    }
+
+    private function findUserByIdentifier($identifier)
+    {
+        return User::where('email', $identifier)
+                    ->orWhere('phone_number', $identifier)
+                    ->first();
+    }
+
+    private function isValidPassword($inputPassword, $storedPassword)
+    {
+        return Hash::check($inputPassword, $storedPassword);
+    }
+
+    private function handleTwoFactorAuthentication(User $user)
+    {
         $google2fa = new Google2FA();
         $code = $google2fa->generateSecretKey();
 
-        $user->two_factor_code = $code;
-        $user->two_factor_expires_at = now()->addMinutes(10);
-        $user->save();
+        $user->update([
+            'two_factor_code' => $code,
+            'two_factor_expires_at' => now()->addMinutes(10),
+        ]);
 
         Mail::to($user->email)->send(new TwoFactorMail($code));
-        return $this->SuccessResponse($newToken,'A 2FA code has been sent to your email. Please verify.',200);
     }
 }

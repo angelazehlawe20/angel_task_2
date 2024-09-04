@@ -33,7 +33,7 @@ Route::prefix('v1/auth')->group(function() {
 
         });
 
-        Route::middleware(['auth:sanctum','refresh.token'])->group(function () {
+        Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/logout', 'logout');
         });
     });

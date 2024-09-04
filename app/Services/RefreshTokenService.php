@@ -10,9 +10,25 @@ class RefreshTokenService
 
     public function refreshTokenUser(Request $request)
     {
-        $user=$request->user();
+        $user = $request->user();
+
+        if (!$user) {
+            return $this->ErrorResponse('User not authenticated.', 401);
+        }
+
+        $this->revokeCurrentToken($user);
+        $newAccessToken = $this->generateNewToken($user);
+
+        return $this->SuccessResponse($newAccessToken, 'Token refreshed successfully. Expires in 10 minutes.', 200);
+    }
+
+    private function revokeCurrentToken($user)
+    {
         $user->currentAccessToken()->delete();
-        $newAccessToken = $user->createToken('auth_token')->plainTextToken;
-        return $this->SuccessResponse($newAccessToken,'expires_in 10 minutes',200);
+    }
+
+    private function generateNewToken($user)
+    {
+        return $user->createToken('auth_token')->plainTextToken;
     }
 }
