@@ -10,7 +10,8 @@ class RefreshTokenService
 
     public function refreshTokenUser(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user=$request->user();
+        $user->currentAccessToken()->delete();
         $newAccessToken = $user->createToken('auth_token')->plainTextToken;
         return $this->SuccessResponse($newAccessToken,'expires_in 10 minutes',200);
     }

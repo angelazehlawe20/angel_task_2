@@ -26,10 +26,8 @@ class LoginService
         if(!$user||!Hash::check($validation['password'],$user->password)){
             return $this->ErrorResponse('Invalid credentials. Please check your email or password and try again.',401);
         }
-        $oldToken=$request->user();
-        $oldToken->currentAccessToken()->delete();
         $newToken=$user->createToken('myapptoken')->plainTextToken;
-        
+
         LoginEvent::dispatch($user);
 
         $google2fa = new Google2FA();
