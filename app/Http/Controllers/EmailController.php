@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Services\EmailController\SendEmailService;
-
+use Illuminate\Http\Request;
 
 class EmailController extends Controller
 {
-    protected $SendEmailService;
+    protected $sendEmailService;
 
-    public function __constructor(SendEmailService $SendEmailService)
+    public function __construct(SendEmailService $sendEmailService)
     {
-        $this->SendEmailService = $SendEmailService;
-    }
-    public function sendEmail()
-    {
-        return $this->SendEmailService->sendEmailUser();
+        $this->sendEmailService = $sendEmailService;
     }
 
+    public function sendEmail(Request $request)
+    {
+        return $this->sendEmailService->sendEmailUser();
+    }
 }
+

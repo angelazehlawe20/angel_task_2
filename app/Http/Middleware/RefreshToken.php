@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class RefreshToken
@@ -16,21 +16,20 @@ class RefreshToken
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = $next($request);
         $user = Auth::user();
+        $expiresIn = now()->diffInMinutes($user->currentAccessToken()->created_at->addMinutes(10));
 
-        if ($user) {
-            $tokenStartedAt = $user->currentAccessToken()->created_at;
+        if ($expiresIn <= 20) {
+            $user->currentAccessToken()->delete();
 
-            if ($tokenStartedAt->diffInMinutes(now()) >= 20) {
-                $user->tokens()->delete();
+            $newAccessToken = $user->createToken('auth_token')->plainTextToken;
 
-                $newToken = $user->createToken('myapptoken')->plainTextToken;
+            Log::info('Token for user ID: ' . $user->id . ' was refreshed.');
 
-                $response->headers->set('Authorization', 'Bearer ' . $newToken);
-            }
+            $response = $next($request);
+            return $response->header('Authorization', 'Bearer ' . $newAccessToken);
         }
 
-        return $response;
+        return $next($request);
     }
 }

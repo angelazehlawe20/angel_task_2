@@ -20,10 +20,6 @@ class ConfirmEmail_VFCodeService
             return $this->ErrorResponse('Invalid or expired verification code', 400);
         }
 
-        if ($user->email_verified) {
-            return $this->ErrorResponse('Email is already verified.', 400);
-        }
-
         $this->markEmailAsVerified($user);
 
         $token = $user->createToken('myapptoken')->plainTextToken;

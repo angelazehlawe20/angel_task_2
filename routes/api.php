@@ -21,13 +21,11 @@ Route::prefix('v1/auth')->group(function() {
         Route::post('/signup', 'signup');
         Route::post('/login', 'login');
         Route::post('/confirmEmail_VFCode', 'confirmEmail_VFCode');
+        Route::post('/resendVFCode', 'resendVFCode')->middleware('email.not.verified');
 
-        Route::middleware(['email.throttle'])->group(function () {
-            Route::post('/resendVFCode', 'resendVFCode');
-        });
 
         Route::middleware(['auth:sanctum','refresh.token'])->group(function () {
-            Route::post('/resend2FAcode', 'resend2FAcode')->middleware('email.throttle');
+            Route::post('/resend2FAcode', 'resend2FAcode');
             Route::post('/Confirm2FACode', 'Confirm2FACode');
             Route::post('/refreshToken', 'refreshToken');
 
@@ -38,8 +36,10 @@ Route::prefix('v1/auth')->group(function() {
         });
     });
 
-    Route::controller(EmailController::class)->middleware(['auth:sanctum', 'email.throttle'])->group(function () {
-        Route::get('/sendEmail', 'sendEmail');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::controller(EmailController::class)->group(function () {
+            Route::get('/sendEmail', 'sendEmail');
+        });
     });
 
 });

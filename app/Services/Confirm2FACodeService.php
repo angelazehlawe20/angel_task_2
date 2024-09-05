@@ -51,7 +51,9 @@ class Confirm2FACodeService
 
     private function regenerateToken($user)
     {
-        $user->currentAccessToken()->delete();
+        if ($user->tokens()->exists()) {
+            $user->tokens()->delete();
+        }
         return $user->createToken('myapptoken')->plainTextToken;
     }
 

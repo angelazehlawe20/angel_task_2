@@ -10,34 +10,38 @@ class Handler extends ExceptionHandler
 {
     use ApiTrait;
 
-    /*public function render($request, Throwable $exception)
-    {
-        if($exception instanceof UnauthorizedHttpException)
-        {
-            return $this->ErrorResponse('Unauthorized.',401);
-        }
-        if ($exception instanceof NotFoundHttpException) {
-            return $this->errorResponse('Resource not found.', 404);
-        }
+    public function render($request, Throwable $exception)
+{
+    if ($exception instanceof UnauthorizedHttpException) {
+        return $this->ErrorResponse('Unauthorized.', 401);
+    }
 
-        if ($exception instanceof AccessDeniedHttpException) {
-            return $this->errorResponse('Forbidden.', 403);
-        }
+    if ($exception instanceof NotFoundHttpException) {
+        return $this->ErrorResponse('Resource not found.', 404);
+    }
 
-        if ($exception instanceof TooManyRequestsHttpException) {
-            return $this->errorResponse('Too many requests. Please try again later.', 429);
-        }
+    if ($exception instanceof AccessDeniedHttpException) {
+        return $this->ErrorResponse('Forbidden.', 403);
+    }
 
-        if ($exception instanceof QueryException) {
-            return $this->errorResponse('Database query error. Please check your request and try again.', 500);
-        }
+    if ($exception instanceof TooManyRequestsHttpException) {
+        return $this->ErrorResponse('Too many requests. Please try again later.', 429);
+    }
 
-        if ($exception instanceof HttpException) {
-            return $this->errorResponse('Server error.', $exception->getStatusCode());
-        }
+    if ($exception instanceof ValidationException) {
+        return $this->ErrorResponse('Validation error. Please check the input and try again.', 422, $exception->errors());
+    }
 
-        return $this->errorResponse('An unexpected error occurred. Please try again later.', 500);
-    }*/
+    if ($exception instanceof QueryException) {
+        return $this->ErrorResponse('Database query error. Please check your request and try again.', 500);
+    }
+
+    if ($exception instanceof HttpException) {
+        return $this->ErrorResponse('Server error.', $exception->getStatusCode());
+    }
+
+    return parent::render($request, $exception); 
+}
 
 
 
